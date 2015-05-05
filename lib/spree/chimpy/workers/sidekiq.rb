@@ -9,7 +9,7 @@ module Spree::Chimpy
       end
 
       def perform(payload)
-        Spree::Chimpy.perform(payload.with_indifferent_access)
+        Spree::Chimpy.perform(payload)
       rescue Excon::Errors::Timeout, Excon::Errors::SocketError
         log "Mailchimp connection timeout reached, closing"
       end

@@ -1,4 +1,3 @@
----
 nl:
   spree:
     chimpy:
@@ -6,10 +5,9 @@ nl:
       admin_subscribed_label: "Ingeschreven voor de nieuwsbrief"
       subscribed: "Ingeschreven"
       subscribe_title: "Schrijf je in voor onze nieuwsbrief"
-      uncategorized: Ongecatagoriseerd
       email:
         label: "Blijf op de hoogte van onze aanbiedingen en ontvang exclusieve korting"
         placeholder: "Voer hier je email adres in"
       subscriber:
         success: "Bedankt voor je inschrijving"
-        failure: "Er ging helaas iets mis bij het verwerken van je inschrijving"
+        failure: "Er ging helaas iets mist bij het verwerken van je inschrijving"

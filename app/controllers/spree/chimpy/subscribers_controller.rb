@@ -1,23 +1,23 @@
 class Spree::Chimpy::SubscribersController < ApplicationController
-  respond_to :html, :json
+  # respond_to :html
+  layout "spree/layouts/blank"
 
   def create
-    @subscriber = Spree::Chimpy::Subscriber.where(email: subscriber_params[:email]).first_or_initialize
-    @subscriber.email = subscriber_params[:email]
-    @subscriber.subscribed = subscriber_params[:subscribed]
+    @subscriber = Spree::Chimpy::Subscriber.where(email: params[:chimpy_subscriber][:email]).first_or_initialize
+    @subscriber.update_attributes(params[:chimpy_subscriber])
     if @subscriber.save
-      flash[:notice] = Spree.t(:success, scope: [:chimpy, :subscriber])
+      Spree::Chimpy::Subscription.new(@subscriber).subscribe
+      flash[:notice] = I18n.t("spree.chimpy.subscriber.success")
+      @success = true
     else
-      flash[:error] = Spree.t(:failure, scope: [:chimpy, :subscriber])
+      flash[:error] = I18n.t("spree.chimpy.subscriber.failure")
+      @success = false
     end
 
-    referer = request.referer || root_url # Referer is optional in request.
-    respond_with @subscriber, location: referer
+    respond_to do |format|
+      format.js
+      format.html
+    end
+    # respond_with @subscriber, location: request.referer
   end
-
-  private
-
-    def subscriber_params
-      params.require(:chimpy_subscriber).permit(:email, :subscribed)
-    end
 end

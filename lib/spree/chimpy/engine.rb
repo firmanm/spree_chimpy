@@ -6,6 +6,11 @@ module Spree::Chimpy
 
     config.autoload_paths += %W(#{config.root}/lib)
 
+    # use rspec for tests
+    config.generators do |g|
+      g.test_framework :rspec
+    end
+
     initializer "spree_chimpy.environment", before: :load_config_initializers do |app|
       Spree::Chimpy::Config = Spree::Chimpy::Configuration.new
     end
@@ -34,11 +39,6 @@ module Spree::Chimpy
         Spree::StoreController.send(:include, Spree::Chimpy::ControllerFilters)
       else
         Spree::BaseController.send(:include,  Spree::Chimpy::ControllerFilters)
-      end
-
-      # for those shops that use the api controller
-      if defined?(Spree::Api::BaseController)
-        Spree::Api::BaseController.send(:include,  Spree::Chimpy::ControllerFilters)
       end
 
       Dir.glob(File.join(File.dirname(__FILE__), '../../../app/**/*_decorator*.rb')) do |c|

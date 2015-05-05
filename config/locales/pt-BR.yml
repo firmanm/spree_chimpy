@@ -1,0 +1,13 @@
+pt-BR:
+  spree:
+    chimpy:
+      subscribed_label: Inscrever
+      admin_subscribed_label: Subscribed to newsletter
+      subscribe_title: Receba novidades e promoções
+      subscribed: Inscrito
+      email:
+        label: Email
+        placeholder: Insira seu email
+      subscriber:
+        success: Obrigado! A partir de agora você irá receber promoções e novidades por email!
+        failure: Não foi possível inscrever seu email na nossa newsletter
