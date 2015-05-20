@@ -1,0 +1,27 @@
+<%= render :partial => 'spree/admin/shared/configuration_menu' %>
+
+<h1><%= t("spree.chimpy.config.title") %></h1>
+
+<table>
+  <tr>
+    <th scope="row"><%= t("spree.chimpy.config.api_key") %>:</th>
+    <td><%= Spree::Chimpy.config { |config| config.key } %></td>
+  </tr>
+  <tr>
+    <th scope="row"><%= t("spree.chimpy.config.list_name") %>:</th>
+    <td><%= Spree::Chimpy.config { |config| config.list_name } %></td>
+  </tr>
+</table>
+
+
+<h4><%= t("spree.chimpy.config.double_opt_in") %>: <%= Spree::Chimpy.config { |config| config.double_opt_in }? t('yes') : t('no') %></h4>
+<br />
+<h4><%= t("spree.chimpy.config.subscribed_by_default") %>: <%= Spree::Chimpy.config { |config| config.subscribed_by_default }? t('yes') : t('no') %></h4>
+<br />
+
+<h4><%= t("spree.chimpy.config.merge_vars") %></h4>
+<ul>
+<% Spree::Chimpy.config { |config| config.merge_vars }.each do |key, value| %>
+<li><%= value %></li>
+<% end %>
+</ul>

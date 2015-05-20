@@ -1,4 +1,6 @@
 nl:
+  yes: yes
+  no: no
   spree:
     chimpy:
       subscribed_label: "Schrijf mij in voor de nieuwsbrief"
@@ -11,3 +13,12 @@ nl:
       subscriber:
         success: "Bedankt voor je inschrijving"
         failure: "Er ging helaas iets mist bij het verwerken van je inschrijving"
+        already: This email is already subscribed to our newsletter
+        missing_email: Please insert a valid email address
+      config:
+        title: Mailchimp Settings
+        api_key: API Key
+        list_name: List name
+        double_opt_in: Double Opt-in
+        subscribed_by_default: Subscribed by default
+        merge_vars: Subscriber attributes to send with subscription

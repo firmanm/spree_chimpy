@@ -22,6 +22,7 @@ module Spree::Chimpy
 
   def configured?
     Config.key.present?
+    # true
   end
 
   def reset
