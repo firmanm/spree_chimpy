@@ -1,6 +1,46 @@
 <div id="user-subscribe-container">
   <p>
-    <%= f.check_box :subscribed %>
-    <%= f.label :subscribed, t("spree.chimpy.subscribed_label") %>
+    <%= check_box :spree_user, :subscribed %>
+    <%= label :spree_user, :subscribed, t("spree.chimpy.subscribed_label") %>
+
+    <div class="user_type" style="display:none">
+      <input type="hidden" id="user_type" name="spree_user[user_type]" value="Me Interessa Comprar e Vender">
+      Tenho interesse em:
+      <input type="checkbox" id="usertype_buyer" name="usertype_buyer" value="Me Interessa Apenas Comprar" checked="checked"><label for="usertype_buyer">Comprar</label>
+      <input type="checkbox" id="usertype_seller" name="usertype_seller" value="Me Interessa Apenas Vender" checked="checked"><label for="usertype_seller">Vender</label>
+    </div>
   </p>
 </div>
+
+<% content_for :script do %>
+<script type="text/javascript">
+$("#user-subscribe-container .user_type input[type=checkbox]").on("change", function(){
+  if($(this).is(":checked")){
+    if($(this).siblings("input[type=checkbox]").first().is(":checked")){
+      $("#user-subscribe-container .user_type #user_type").val("Me Interessa Comprar e Vender");
+    } else {
+      $("#user-subscribe-container .user_type #user_type").val($(this).val());
+    }
+  } else {
+    if($(this).siblings("input[type=checkbox]").first().is(":checked")){
+      $("#user-subscribe-container .user_type #user_type").val($(this).siblings("input[type=checkbox]").first().val());
+    } else {
+      alert("Pelo menos um deve estar selecionado!");
+      $(this)[0].checked = true;
+    }
+  }
+});
+$("#user-subscribe-container #spree_user_subscribed").on("change", function(){
+  if($(this).is(":checked")){
+    $("#user-subscribe-container .user_type").show();
+  } else {
+    $("#user-subscribe-container .user_type").hide();
+  }
+});
+$(document).ready(function(){
+  if($("#user-subscribe-container #spree_user_subscribed").is(":checked")){
+    $("#user-subscribe-container .user_type").show();
+  }
+});
+</script>
+<% end %>
