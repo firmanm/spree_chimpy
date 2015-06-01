@@ -19,7 +19,6 @@ class Spree::Chimpy::SubscribersController < Spree::BaseController
         @subscriber.utm_source ||= cookies[:utm_source]
         @subscriber.utm_campaign ||= cookies[:utm_campaign]
         @subscriber.utm_medium ||= cookies[:utm_medium]
-        @subscriber.ubdate ||= Date.today
         if @subscriber.save
           Spree::Chimpy::Subscription.new(@subscriber).subscribe
           # user = Spree::User.where(email:params[:chimpy_subscriber][:email]).first
