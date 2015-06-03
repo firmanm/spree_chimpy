@@ -20,5 +20,5 @@ pt-BR:
         api_key: API Key
         list_name: List name
         double_opt_in: Double Opt-in
-        subscribed_by_default: SUbscrivbed by default
+        subscribed_by_default: Subscribed by default
         merge_vars: Subscriber attributes to send with subscription
