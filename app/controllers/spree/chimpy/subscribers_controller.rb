@@ -1,23 +1,49 @@
-class Spree::Chimpy::SubscribersController < ApplicationController
-  respond_to :html, :json
+class Spree::Chimpy::SubscribersController < Spree::BaseController
+  # respond_to :html
+  layout "spree/layouts/blank"
 
   def create
-    @subscriber = Spree::Chimpy::Subscriber.where(email: subscriber_params[:email]).first_or_initialize
-    @subscriber.email = subscriber_params[:email]
-    @subscriber.subscribed = subscriber_params[:subscribed]
-    if @subscriber.save
-      flash[:notice] = Spree.t(:success, scope: [:chimpy, :subscriber])
+    @errors = []
+    if params[:chimpy_subscriber][:email].blank?
+      @errors << I18n.t("spree.chimpy.subscriber.missing_email")
+    elsif params[:chimpy_subscriber][:email] !~ /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/i
+      @errors << I18n.t("spree.chimpy.subscriber.missing_email")
     else
-      flash[:error] = Spree.t(:failure, scope: [:chimpy, :subscriber])
+      if Spree::Chimpy::Subscriber.where(email: params[:chimpy_subscriber][:email]).first
+        @errors <<  params[:chimpy_subscriber]
+        @errors << I18n.t("spree.chimpy.subscriber.already")
+      else
+        @subscriber = Spree::Chimpy::Subscriber.where(email: params[:chimpy_subscriber][:email]).first_or_initialize
+        @subscriber.update_attributes(params[:chimpy_subscriber])
+        @subscriber.profile = params[:user_type]
+        @subscriber.utm_source ||= cookies[:utm_source]
+        @subscriber.utm_campaign ||= cookies[:utm_campaign]
+        @subscriber.utm_medium ||= cookies[:utm_medium]
+        if @subscriber.save
+          Spree::Chimpy::Subscription.new(@subscriber).subscribe
+          # user = Spree::User.where(email:params[:chimpy_subscriber][:email]).first
+          # if user
+          #   user.subscribed = true
+          #   user.save
+          # end
+          flash[:newsletter_subscription_tracking] = "nothing special"
+          # flash[:notice] = I18n.t("spree.chimpy.subscriber.success")
+        else
+          @errors <<  params[:chimpy_subscriber]
+          @errors << I18n.t("spree.chimpy.subscriber.failure")
+        end
+      end
     end
 
-    referer = request.referer || root_url # Referer is optional in request.
-    respond_with @subscriber, location: referer
+    respond_to do |format|
+      format.js
+      format.html
+    end
+    # respond_with @subscriber, location: request.referer
   end
 
-  private
-
-    def subscriber_params
-      params.require(:chimpy_subscriber).permit(:email, :subscribed)
-    end
+  def success
+    flash[:newsletter_subscription_tracking] = "nothing special"
+    render "create"
+  end
 end

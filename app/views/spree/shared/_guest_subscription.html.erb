@@ -1,9 +1,11 @@
 <% @subscriber ||= Spree::Chimpy::Subscriber.new %>
 <%= form_for @subscriber do |f| %>
-  <div>
-    <h2><%= Spree.t(:subscribe_title, scope: :chimpy) %></h2>
-    <%= f.label :email, Spree.t(:label, scope: [:chimpy, :email]) %>
-    <%= f.email_field :email, placeholder: Spree.t(:placeholder, scope: [:chimpy, :email]) %>
-    <%= f.submit %>
+  <div class="user_type">
+    <input type="hidden" id="user_type" name="user_type" value="Me Interessa Comprar e Vender">
+    <b>Tenho interesse em:</b>
+    <input type="checkbox" id="usertype_buyer" name="usertype_buyer" value="Me Interessa Apenas Comprar" checked="checked"><label for="usertype_buyer">Comprar</label>
+    <input type="checkbox" id="usertype_seller" name="usertype_seller" value="Me Interessa Apenas Vender" checked="checked"><label for="usertype_seller">Vender</label>
   </div>
+  <%= f.email_field :email, placeholder: t("enter_your_email"), id: 'subscribe_email' %>
+  <%= f.submit "Inscrever", :class => 'submit', :id => 'op_subscribe' %>
 <% end %>

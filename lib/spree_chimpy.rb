@@ -3,7 +3,6 @@ require 'spree/chimpy/engine'
 require 'spree/chimpy/subscription'
 require 'spree/chimpy/workers/delayed_job'
 require 'mailchimp'
-require 'coffee_script'
 
 module Spree::Chimpy
   extend self
@@ -22,7 +21,8 @@ module Spree::Chimpy
   end
 
   def configured?
-    Config.key.present? && (Config.list_name.present? || Config.list_id.present?)
+    Config.key.present?
+    # true
   end
 
   def reset
@@ -37,7 +37,6 @@ module Spree::Chimpy
     @list ||= Interface::List.new(Config.list_name,
                         Config.customer_segment_name,
                         Config.double_opt_in,
-                        Config.send_welcome_email,
                         Config.list_id) if configured?
   end
 
@@ -79,16 +78,11 @@ module Spree::Chimpy
   end
 
   def ensure_list
-    if Config.list_name.present?
-      Rails.logger.error("spree_chimpy: hmm.. a list named `#{Config.list_name}` was not found. Please add it and reboot the app") unless list_exists?
-    end
-    if Config.list_id.present?
-      Rails.logger.error("spree_chimpy: hmm.. a list with ID `#{Config.list_id}` was not found. Please add it and reboot the app") unless list_exists?
-    end
+    Rails.logger.error("spree_chimpy: hmm.. a list named `#{Config.list_name}` was not found. please add it and reboot the app") unless list_exists?
   end
 
   def ensure_segment
-    if list_exists? && !segment_exists?
+    unless segment_exists?
       create_segment
       Rails.logger.error("spree_chimpy: hmm.. a static segment named `#{Config.customer_segment_name}` was not found. Creating it now")
     end

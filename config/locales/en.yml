@@ -1,15 +1,24 @@
----
 en:
+  yes: yes
+  no: no
   spree:
     chimpy:
       subscribed_label: Sign me up to the newsletter
       admin_subscribed_label: Subscribed to newsletter
       subscribe_title: Subscribe to our newsletter
       subscribed: Subscribed
-      uncategorized: Uncategorized
       email:
         label: Email
         placeholder: Enter your email address
       subscriber:
         success: Thanks! you've been successfully added
         failure: There was a problem processing your sign-up
+        already: This email is already subscribed to our newsletter
+        missing_email: Please insert a valid email address
+      config:
+        title: Mailchimp Settings
+        api_key: API Key
+        list_name: List name
+        double_opt_in: Double Opt-in
+        subscribed_by_default: Subscribed by default
+        merge_vars: Subscriber attributes to send with subscription

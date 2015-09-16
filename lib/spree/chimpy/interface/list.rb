@@ -3,12 +3,11 @@ module Spree::Chimpy
     class List
       delegate :log, to: Spree::Chimpy
 
-      def initialize(list_name, segment_name, double_opt_in, send_welcome_email, list_id)
+      def initialize(list_name, segment_name, double_opt_in, list_id)
         @api           = Spree::Chimpy.api
         @list_id       = list_id
         @segment_name  = segment_name
         @double_opt_in = double_opt_in
-        @send_welcome_email = send_welcome_email
         @list_name     = list_name
       end
 
@@ -19,24 +18,17 @@ module Spree::Chimpy
       def subscribe(email, merge_vars = {}, options = {})
         log "Subscribing #{email} to #{@list_name}"
 
-        begin
-          api_call.subscribe(list_id, { email: email }, merge_vars, 'html', @double_opt_in, true, true, @send_welcome_email)
+        api_call.subscribe(list_id, { email: email }, merge_vars, 'html', @double_opt_in, true)
 
-          segment([email]) if options[:customer]
-        rescue Mailchimp::ListInvalidImportError, Mailchimp::ValidationError => ex
-          log "Subscriber #{email} rejected for reason: [#{ex.message}]"
-          true
-        end
+        segment([email]) if options[:customer]
+      rescue Mailchimp::ListInvalidImportError
+        log "#{email} unable to be signed up"
       end
 
       def unsubscribe(email)
         log "Unsubscribing #{email} from #{@list_name}"
 
-        begin
-          api_call.unsubscribe(list_id, { email: email })
-        rescue Mailchimp::EmailNotExistsError, Mailchimp::ListNotSubscribedError
-          true
-        end
+        api_call.unsubscribe(list_id, { email: email })
       end
 
       def info(email_or_id)
@@ -64,8 +56,7 @@ module Spree::Chimpy
       end
 
       def find_list_id(name)
-        list = @api.lists.list["data"].detect { |r| r["name"] == name }
-        list["id"] if list
+        @api.lists.list["data"].detect { |r| r["name"] == name }["id"]
       end
 
       def list_id
@@ -73,10 +64,9 @@ module Spree::Chimpy
       end
 
       def segment(emails = [])
-        log "Adding #{emails} to segment #{@segment_name} [#{segment_id}] in list [#{list_id}]"
+        log "Adding #{emails} to segment #{@segment_name}"
 
-        params = emails.map { |email| { email: email } }
-        response = api_call.static_segment_members_add(list_id, segment_id.to_i, params)
+        api_call.static_segment_members_add(list_id, segment_id.to_i, emails)
       end
 
       def create_segment

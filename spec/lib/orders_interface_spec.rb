@@ -1,14 +1,13 @@
 require 'spec_helper'
 
 describe Spree::Chimpy::Interface::Orders do
-  let(:interface) { described_class.new }
-  let(:api)       { double(:api) }
+  let(:interface) { Spree::Chimpy::Interface::Orders.new }
+  let(:api)       { double() }
   let(:list)      { double() }
-  let(:key)       { 'e025fd58df5b66ebd5a709d3fcf6e600-us8' }
 
   def create_order(options={})
-    user  = create(:user, email: options[:email])
-    order = build(:completed_order_with_totals, user: user, email: options[:email])
+    user = FactoryGirl.create(:user, email: options[:email])
+    order = FactoryGirl.build(:completed_order_with_totals, user: user, email: options[:email])
     order.source = Spree::Chimpy::OrderSource.new(email_id: options[:email_id], campaign_id: options[:campaign_id])
 
     # we need to have a saved order in order to have a non-nil order number
@@ -19,12 +18,13 @@ describe Spree::Chimpy::Interface::Orders do
   end
 
   before do
-    Spree::Chimpy::Config.key = key
+    Spree::Chimpy::Config.key = '1234'
     Spree::Chimpy::Config.store_id = "super-store"
+    Spree::Config.site_name = "Super Store"
     Spree::Chimpy::Config.subscribe_to_list = true
     Spree::Chimpy.stub(list: list)
 
-    Mailchimp::API.should_receive(:new).with(key, { timeout: 60 }).and_return(api)
+    Mailchimp::API.should_receive(:new).with('1234', { timeout: 60 }).and_return(api)
     allow(api).to receive(:ecomm).and_return(api)
   end
 

@@ -1,15 +1,24 @@
----
 nl:
+  yes: yes
+  no: no
   spree:
     chimpy:
       subscribed_label: "Schrijf mij in voor de nieuwsbrief"
       admin_subscribed_label: "Ingeschreven voor de nieuwsbrief"
       subscribed: "Ingeschreven"
       subscribe_title: "Schrijf je in voor onze nieuwsbrief"
-      uncategorized: Ongecatagoriseerd
       email:
         label: "Blijf op de hoogte van onze aanbiedingen en ontvang exclusieve korting"
         placeholder: "Voer hier je email adres in"
       subscriber:
         success: "Bedankt voor je inschrijving"
-        failure: "Er ging helaas iets mis bij het verwerken van je inschrijving"
+        failure: "Er ging helaas iets mist bij het verwerken van je inschrijving"
+        already: This email is already subscribed to our newsletter
+        missing_email: Please insert a valid email address
+      config:
+        title: Mailchimp Settings
+        api_key: API Key
+        list_name: List name
+        double_opt_in: Double Opt-in
+        subscribed_by_default: Subscribed by default
+        merge_vars: Subscriber attributes to send with subscription

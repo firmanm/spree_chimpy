@@ -1,0 +1,28 @@
+<% flash[:notice] = nil %>
+
+
+<%= @something_doesnt_exist %>
+
+<% if @errors.empty? %>
+  $.fancybox(
+    { 'href' : "/subscribers/success",
+      'titleShow' : false,
+      'overlayOpacity': 0.5,
+      'overlayColor' : '#000',
+      'centerOnScroll' : true,
+      'padding' : 0,
+      'type' : 'iframe',
+      'enableEscapeButton' : true,
+      'width' : 800,
+      'height' : 540,
+      'showNavArrows' : false
+    }
+  );
+<% else %>
+  $.fancybox(
+    '<h1><%= @errors.join(" , ") %></h1>',
+    {
+      'centerOnScroll' : true
+    }
+  );
+<% end %>

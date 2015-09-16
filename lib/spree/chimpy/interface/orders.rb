@@ -21,22 +21,15 @@ module Spree::Chimpy
           expected_email = order.email
         end
 
-        # create the user if it does not exist yet
-        if Spree::Chimpy::Config.subscribe_to_list
-          log "Subscribing #{expected_email} to list"
-          Spree::Chimpy.list.subscribe(expected_email)
-        end
+        log "Adding order #{order.number} for #{expected_email}"
 
-        data = hash(order, expected_email)
-        log "Adding order #{order.number} for #{expected_email} with campaign #{data[:campaign_id]}"
+        # create the user if it does not exist yet
+        Spree::Chimpy.list.subscribe(expected_email) if Spree::Chimpy::Config.subscribe_to_list
+        
         begin
-          api_call.order_add(data)
-        rescue Mailchimp::EmailNotExistsError => e
-          if source
-            log "invalid eid (#{source.email_id}) for email #{expected_email} [#{e.message}]"
-          else
-            log "invalid email #{expected_email} [#{e.message}]"
-          end
+          api_call.order_add(hash(order, expected_email))
+        rescue => e
+          log "error adding order #{order.number} | #{e}"
         end
       end
 
@@ -52,28 +45,25 @@ module Spree::Chimpy
 
       def sync(order)
         add(order)
-      rescue Mailchimp::InvalidEcommOrderError => e
-        log "invalid ecomm order error [#{e.message}]"
+      rescue Mailchimp::InvalidEcommOrderError
+        remove(order)
       end
 
     private
       def hash(order, expected_email)
         source = order.source
-        root_taxon = Spree::Taxon.where(parent_id: nil).take
+        root_taxon = Spree::Taxon.find_by_parent_id(nil)
 
         items = order.line_items.map do |line|
           # MC can only associate the order with a single category: associate the order with the category right below the root level taxon
           variant = line.variant
           taxon = variant.product.taxons.map(&:self_and_ancestors).flatten.uniq.detect { |t| t.parent == root_taxon }
 
-          # assign a default taxon if the product is not associated with a category
-          taxon = root_taxon if taxon.blank?
-
           {product_id:    variant.id,
            sku:           variant.sku,
            product_name:  variant.name,
            category_id:   taxon ? taxon.id : 999999,
-           category_name: taxon ? taxon.name : Spree.t(:uncategorized, scope: :chimpy, default: 'Uncategorized'),
+           category_name: taxon ? taxon.name : "Uncategorized",
            cost:          variant.price.to_f,
            qty:           line.quantity}
         end
@@ -81,11 +71,10 @@ module Spree::Chimpy
         data = {
           id:          order.number,
           email:       order.email,
-          total:       order.total.to_f,
-          order_date:  order.completed_at ? order.completed_at.to_formatted_s(:db) : nil,
+          total:       order.total_without_store_credits.to_f,
           shipping:    order.ship_total.to_f,
-          tax:         order.try(:included_tax_total).to_f, # or additional_tax_total
-          store_name:  Spree::Chimpy::Config.store_id.titleize,
+          tax:         order.tax_total.to_f,
+          store_name:  Spree::Config.site_name,
           store_id:    Spree::Chimpy::Config.store_id,
           items:       items
         }
@@ -94,6 +83,7 @@ module Spree::Chimpy
           data[:email_id]    = source.email_id
           data[:campaign_id] = source.campaign_id
         end
+
         data
       end
 

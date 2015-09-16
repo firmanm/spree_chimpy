@@ -1,0 +1,24 @@
+pt-BR:
+  yes: sim
+  no: não
+  spree:
+    chimpy:
+      subscribed_label: Receba nossas novidades por email
+      admin_subscribed_label: Subscribed to newsletter
+      subscribe_title: Receba novidades e promoções
+      subscribed: Inscrito
+      email:
+        label: Email
+        placeholder: Insira seu email
+      subscriber:
+        success: Obrigado! A partir de agora você irá receber promoções e novidades por email!
+        failure: Não foi possível inscrever seu email na nossa newsletter
+        already: Este email já está inscrito em nossa newsletter
+        missing_email: Por favor insira um enderço de email válido
+      config:
+        title: Mailchimp Settings
+        api_key: API Key
+        list_name: List name
+        double_opt_in: Double Opt-in
+        subscribed_by_default: Subscribed by default
+        merge_vars: Subscriber attributes to send with subscription
