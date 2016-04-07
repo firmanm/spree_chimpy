@@ -9,7 +9,7 @@ namespace :spree_chimpy do
   namespace :orders do
     desc 'sync all orders with mail chimp'
     task sync: :environment do
-      scope = Spree::Order.complete
+      scope = Spree::Order.complete.paid
 
       puts "Exporting #{scope.count} orders"
 

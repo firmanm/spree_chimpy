@@ -149,6 +149,6 @@ module Spree::Chimpy
   end
 
   def merchant?
-    @object.merchant? if @object
+    @object.merchant? if @object && @object.name == "Spree::User"
   end
 end
