@@ -73,6 +73,8 @@ module Spree::Chimpy
       end
 
       def segment(emails = [])
+        create_segment unless segment_id
+
         log "Adding #{emails} to segment #{@segment_name} [#{segment_id}] in list [#{list_id}]"
 
         params = emails.map { |email| { email: email } }

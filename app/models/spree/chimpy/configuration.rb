@@ -14,5 +14,6 @@ module Spree::Chimpy
     preference :merchant_list_name,    :string,  default: 'Merchants'
     preference :merchant_list_id,      :string,  default: nil
     preference :merchant_merge_vars,   :hash,    default: { 'EMAIL' => :email, 'FNAME' => :firtsname, 'BRANDNAME' => :name, 'PHONE' => :phone }
+    preference :merchant_segment_name, :string,  default: 'New Merchants'
   end
 end

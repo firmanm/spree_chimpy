@@ -40,7 +40,7 @@ module Spree::Chimpy
 
   def list
     @list = Interface::List.new(merchant? ? Config.merchant_list_name : Config.list_name,
-                        Config.customer_segment_name,
+                        merchant? ? Config.merchant_segment_name : Config.customer_segment_name,
                         Config.double_opt_in,
                         Config.send_welcome_email,
                         merchant? ? Config.merchant_list_id : Config.list_id) if configured?
