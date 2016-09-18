@@ -13,6 +13,7 @@ module Spree::Chimpy
   end
 
   def enqueue(event, object)
+    @object = object
     payload = {class: object.class.name, id: object.id, object: object}
     ActiveSupport::Notifications.instrument("spree.chimpy.#{event}", payload)
   end
@@ -21,8 +22,12 @@ module Spree::Chimpy
     Rails.logger.info "spree_chimpy: #{message}"
   end
 
+  def list_configured?
+    merchant? ? (Config.merchant_list_name.present? || Config.merchant_list_id.present?) : (Config.list_name.present? || Config.list_id.present?)
+  end
+
   def configured?
-    Config.key.present? && (Config.list_name.present? || Config.list_id.present?)
+    Config.key.present? && list_configured?
   end
 
   def reset
@@ -34,11 +39,11 @@ module Spree::Chimpy
   end
 
   def list
-    @list ||= Interface::List.new(Config.list_name,
-                        Config.customer_segment_name,
+    @list = Interface::List.new(merchant? ? Config.merchant_list_name : Config.list_name,
+                        merchant? ? Config.merchant_segment_name : Config.customer_segment_name,
                         Config.double_opt_in,
                         Config.send_welcome_email,
-                        Config.list_id) if configured?
+                        merchant? ? Config.merchant_list_id : Config.list_id) if configured?
   end
 
   def orders
@@ -67,10 +72,29 @@ module Spree::Chimpy
   end
 
   def merge_vars(model)
-    attributes = Config.merge_vars.except('EMAIL')
+    if merchant?
+      merchant_merge_vars(model)
+    else
+      attributes = Config.merge_vars.except('EMAIL')
+
+      array = attributes.map do |tag, method|
+        value = model.send(method) if model.methods.include?(method)
+
+        [tag, value.to_s]
+      end
+
+      Hash[array]
+    end
+  end
+
+  def merchant_merge_vars(model)
+    attributes = Config.merchant_merge_vars.except('EMAIL')
+    value = ""
 
     array = attributes.map do |tag, method|
-      value = model.send(method) if model.methods.include?(method)
+      value = model.merchant.address.firstname if tag == 'FNAME'
+      value = model.merchant.name if tag == 'BRANDNAME'
+      value = model.merchant.address.phone if tag == 'PHONE'
 
       [tag, value.to_s]
     end
@@ -99,9 +123,10 @@ module Spree::Chimpy
 
     case
     when defined?(::Delayed::Job)
-      ::Delayed::Job.enqueue(Spree::Chimpy::Workers::DelayedJob.new(payload))
+      ::Delayed::Job.enqueue(payload_object: Spree::Chimpy::Workers::DelayedJob.new(payload),
+                             run_at: Proc.new { 4.minutes.from_now })
     when defined?(::Sidekiq)
-      Spree::Chimpy::Workers::Sidekiq.perform_async(payload.except(:object))
+      Spree::Chimpy::Workers::Sidekiq.perform_in(4.minutes, payload.except(:object))
     else
       perform(payload)
     end
@@ -121,5 +146,9 @@ module Spree::Chimpy
     when :unsubscribe
       list.unsubscribe(object.email)
     end
+  end
+
+  def merchant?
+    @object.merchant? if @object && @object.class.name == "Spree::User"
   end
 end
